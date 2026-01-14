@@ -100,7 +100,10 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-CSRF_TRUSTED_ORIGINS = ['https://*.railway.app']
+CSRF_TRUSTED_ORIGINS = [
+    'https://tdd-django-production.up.railway.app',
+    'https://*.railway.app', 
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
