@@ -6,7 +6,7 @@ from selenium.common.exceptions import WebDriverException
 import time
 import unittest
 
-MAX_WAIT = 5  
+MAX_WAIT = 5
 
 class NewVisitorTest(LiveServerTestCase):
 
@@ -53,7 +53,7 @@ class NewVisitorTest(LiveServerTestCase):
         inputbox = self.browser.find_element(By.ID, "id_priority")
         self.assertEqual(inputbox.get_attribute("placeholder"), "Enter a Priority")
         inputbox.send_keys("High")
-
+        time.sleep(20)  
         # When she hits enter, the page updates, and now the page lists
         # "1: Buy peacock feathers" as an item in a to-do list table
         inputbox.send_keys(Keys.ENTER)
