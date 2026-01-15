@@ -10,7 +10,7 @@
       {% csrf_token %}
     </form>
     <b>Priority:</b>
-    <form method="POST" action="/lists/{{ list.id }}/add_item">
+    <form method="POST" action="/lists/{{ list.id }}/add_priority">
       <input name="priority_text" id="id_priority" placeholder="Enter a Priority" />
       {% csrf_token %}
     </form>
