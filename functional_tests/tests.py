@@ -48,6 +48,12 @@ class NewVisitorTest(LiveServerTestCase):
         # (Edith's hobby is tying fly-fishing lures)
         inputbox.send_keys("Buy peacock feathers")
 
+
+        #Insert Priority of Buy peacock feathers
+        inputbox = self.browser.find_element(By.ID, "id_priority")
+        self.assertEqual(inputbox.get_attribute("placeholder"), "Enter a Priority")
+        inputbox.send_keys("High")
+
         # When she hits enter, the page updates, and now the page lists
         # "1: Buy peacock feathers" as an item in a to-do list table
         inputbox.send_keys(Keys.ENTER)
