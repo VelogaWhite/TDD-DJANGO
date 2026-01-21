@@ -16,10 +16,12 @@ def new_list(request):
 
 def add_item(request, list_id):
     our_list = List.objects.get(id=list_id)
-    Item.objects.create(text=request.POST["item_text"], list=our_list)
-    return redirect(f"/lists/{our_list.id}/")
+    Item.objects.create(text=request.POST['item_text'], list=our_list)
+    if 'priority_text' in request.POST:
+        Priority.objects.create(text=request.POST["priority_text"], list=our_list)
+    return redirect(f'/lists/{our_list.id}/')
 
-def add_priority(requset, list_id):
+def add_priority(request, list_id):
     our_list = List.objects.get(id=list_id)
-    Priority.objects.create(text=request.POST["item_text"], list=our_list)
+    Priority.objects.create(text=request.POST["priority_text"], list=our_list)
     return redirect(f"/lists/{our_list.id}/")

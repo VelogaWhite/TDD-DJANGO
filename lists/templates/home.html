@@ -7,13 +7,11 @@
 
     <form method="POST" action="/lists/new">
       <input name="item_text" id="id_new_item" placeholder="Enter a to-do item" />
-      {% csrf_token %}
-    </form>
-    <b>Priority:</b>
-    <form method="POST" action="/lists/new">
+      
+      <b>Priority:</b>
       <input name="priority_text" id="id_priority" placeholder="Enter a Priority" />
+      
       {% csrf_token %}
     </form>
-
-  </body>
+    </body>
 </html>

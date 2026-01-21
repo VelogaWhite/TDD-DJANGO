@@ -53,7 +53,7 @@ class NewVisitorTest(LiveServerTestCase):
         inputbox = self.browser.find_element(By.ID, "id_priority")
         self.assertEqual(inputbox.get_attribute("placeholder"), "Enter a Priority")
         inputbox.send_keys("High")
-        time.sleep(5)
+
 
         # When she hits enter, the page updates, and now the page lists
         # "1: Buy peacock feathers" as an item in a to-do list table
@@ -66,8 +66,12 @@ class NewVisitorTest(LiveServerTestCase):
         # (Edith is very methodical)
         inputbox = self.browser.find_element(By.ID, "id_new_item")
         inputbox.send_keys("Use peacock feathers to make a fly")
+        
+        inputbox = self.browser.find_element(By.ID, "id_priority")
+        inputbox.send_keys("Low") 
+        
         inputbox.send_keys(Keys.ENTER)
-
+      
         # The page updates again, and now shows both items on her list
         # HERE IS THE CHANGE: We use the helper method twice
         self.wait_for_row_in_list_table("2: Use peacock feathers to make a fly")
