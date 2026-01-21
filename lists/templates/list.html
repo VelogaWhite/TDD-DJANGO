@@ -17,8 +17,9 @@
     </form>
 
     <table id="id_list_table">
-      {% for item in list.item_set.all %}
-        <tr><td>{{ forloop.counter }}: {{ item.text }}</td></tr>
+      <!-- Iterate over the zipped list -->
+      {% for item, priority in items_and_priorities %}
+        <tr><td>{{ forloop.counter }}: {{ item.text }} ({{ priority.text }})</td></tr>
       {% endfor %}
     </table>
   </body>
