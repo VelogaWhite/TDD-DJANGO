@@ -24,14 +24,9 @@ class NewVisitorTest(LiveServerTestCase):
                 rows = table.find_elements(By.TAG_NAME, "tr")
                 self.assertIn(row_text, [row.text for row in rows])
                 return
-            except (AssertionError, WebDriverException) as e:  
+            except (AssertionError, WebDriverException):  
                 if time.time() - start_time > MAX_WAIT:  
-                    # DEBUG: Print what the browser actually sees!
-                    print("\n\nDEBUG: Current Page Title:", self.browser.title)
-                    print("DEBUG: Current URL:", self.browser.current_url)
-                    # Use a shorter snippet if body is huge
-                    print("DEBUG: Page Body Snippet:\n", self.browser.page_source[:500])
-                    raise e
+                    raise  
                 time.sleep(0.5)  
 
     def test_can_start_a_todo_list(self):
@@ -54,7 +49,7 @@ class NewVisitorTest(LiveServerTestCase):
         inputbox = self.browser.find_element(By.ID, "id_priority")
         self.assertEqual(inputbox.get_attribute("placeholder"), "Enter a Priority")
         inputbox.send_keys("High")
-
+        
         # When she hits enter, the page updates...
         inputbox.send_keys(Keys.ENTER)
         self.wait_for_row_in_list_table("1: Buy peacock feathers")
@@ -63,7 +58,7 @@ class NewVisitorTest(LiveServerTestCase):
         inputbox = self.browser.find_element(By.ID, "id_new_item")
         inputbox.send_keys("Use peacock feathers to make a fly")
         
-        # ADDED: Priority for second item
+        # Priority for second item
         inputbox = self.browser.find_element(By.ID, "id_priority")
         inputbox.send_keys("Low")
 
