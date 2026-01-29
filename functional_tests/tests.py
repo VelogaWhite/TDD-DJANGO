@@ -31,54 +31,71 @@ class NewVisitorTest(LiveServerTestCase):
                 time.sleep(0.5)  
 
     def test_can_start_a_todo_list(self):
-        # Edith has heard about a cool new online to-do app.
-        # She goes to check out its homepage
+        # Jack has heard about a cool new online to-do app.
+        # He goes to check out its homepage
         self.browser.get(self.live_server_url)
 
-        # She notices the page title and header mention to-do lists
+        # He notices the page title and header mention to-do lists
         self.assertIn("To-Do", self.browser.title)
         header_text = self.browser.find_element(By.TAG_NAME, "h1").text
         self.assertIn("To-Do", header_text)
 
-        # She is invited to enter a to-do item straight away
+        # He is invited to enter a to-do item straight away
         inputbox = self.browser.find_element(By.ID, "id_new_item")
         self.assertEqual(inputbox.get_attribute("placeholder"), "Enter a to-do item")
 
-        # She types "Buy peacock feathers" into a text box
-        # (Edith's hobby is tying fly-fishing lures)
-        inputbox.send_keys("Buy peacock feathers")
+        # He types "Buy Gearboxes" into a text box
+        inputbox.send_keys("Buy Gearboxes")
 
-        # When she hits enter, the page updates, and now the page lists
-        # "1: Buy peacock feathers" as an item in a to-do list table
+        # Then he hits enter,
         inputbox.send_keys(Keys.ENTER)
-        self.wait_for_row_in_list_table("1: Buy peacock feathers")
+        
+        # He check for Priority
+        prioritybox = self.browser.find_element(By.ID, "id_new_priority")
+        self.assertEqual(prioritybox.get_attribute("placeholder"), "Enter a to-do priority")
+
+        # He types "High" into a priority's text box
+        prioritybox.send_keys("High")
+
+        # When he hits enter, the page updates, and now the page lists
+        prioritybox.send_keys(Keys.ENTER)
 
 
-        # There is still a text box inviting her to add another item.
-        # She enters "Use peacock feathers to make a fly"
-        # (Edith is very methodical)
+
+        # There is still a text box inviting him to add another item.
+        # He enters "Use Gearboxes to make a Machine"
         inputbox = self.browser.find_element(By.ID, "id_new_item")
-        inputbox.send_keys("Use peacock feathers to make a fly")
+        inputbox.send_keys("Use Gearboxes to make a Machine")
         inputbox.send_keys(Keys.ENTER)
 
-        # The page updates again, and now shows both items on her list
-        # HERE IS THE CHANGE: We use the helper method twice
-        self.wait_for_row_in_list_table("2: Use peacock feathers to make a fly")
-        self.wait_for_row_in_list_table("1: Buy peacock feathers")
+        # There is also a priority box waiting for him to add.
+        # He enters "Medium"
+        prioritybox = self.browser.find_element(By.ID, "id_new_priority")
+        prioritybox.send_keys("Medium")
+        prioritybox.send_keys(Keys.ENTER)
+
+        # The page updates again, and now shows both items on him list
+        self.wait_for_row_in_list_table("2: Use Gearboxes to make a Machine")
+        self.wait_for_row_in_list_table("1: Buy Gearboxes")
 
         # Satisfied, she goes back to sleep
 
     def test_multiple_users_can_start_lists_at_different_urls(self):
-        # Edith starts a new to-do list
+        # Jack starts a new to-do list
         self.browser.get(self.live_server_url)
         inputbox = self.browser.find_element(By.ID, "id_new_item")
-        inputbox.send_keys("Buy peacock feathers")
+        inputbox.send_keys("Buy Gearboxes")
         inputbox.send_keys(Keys.ENTER)
-        self.wait_for_row_in_list_table("1: Buy peacock feathers")
+        # He check for Priority
+        prioritybox = self.browser.find_element(By.ID, "id_new_priority")
+        prioritybox.send_keys("High")
+        prioritybox.send_keys(Keys.ENTER)
 
-        # She notices that her list has a unique URL
-        edith_list_url = self.browser.current_url
-        self.assertRegex(edith_list_url, "/lists/.+")
+        self.wait_for_row_in_list_table("1: Buy Gearboxes")
+
+        # He notices that his list has a unique URL
+        jack_list_url = self.browser.current_url
+        self.assertRegex(jack_list_url, "/lists/.+")
 
         # Now a new user, Francis, comes along to the site.
 
