@@ -1,5 +1,5 @@
 from django.test import TestCase
-from lists.models import Item, List
+from lists.models import Item, List, Priority
 
 class HomePageTest(TestCase):
     def test_uses_home_template(self):
@@ -18,7 +18,9 @@ class NewItemTest(TestCase):
 
         self.client.post(
             f"/lists/{correct_list.id}/add_item",
-            data={"item_text": "A new item for an existing list"},
+            data={"item_text": "A new item for an existing list",
+                  "priority_text": "Low"
+            },
         )
 
         self.assertEqual(Item.objects.count(), 1)
@@ -32,20 +34,23 @@ class NewItemTest(TestCase):
 
         response = self.client.post(
             f"/lists/{correct_list.id}/add_item",
-            data={"item_text": "A new item for an existing list"},
+            data={"item_text": "A new item for an existing list",
+                  "priority_text": "Low"},
         )
 
         self.assertRedirects(response, f"/lists/{correct_list.id}/")
 
 class NewListTest(TestCase):
     def test_can_save_a_POST_request(self):
-        self.client.post('/lists/new', data={'item_text': 'A new list item'})
+        self.client.post('/lists/new', data={'item_text': 'A new list item'
+                                             ,'priority_text': 'Medium'})
         self.assertEqual(Item.objects.count(), 1)
         new_item = Item.objects.first()
         self.assertEqual(new_item.text, 'A new list item')
 
     def test_redirects_after_POST(self):
-        response = self.client.post('/lists/new', data={'item_text': 'A new list item'})
+        response = self.client.post('/lists/new', data={'item_text': 'A new list item'
+                                                        ,'priority_text': 'Medium'})
         new_list = List.objects.first()
         self.assertRedirects(response, f'/lists/{new_list.id}/')
 
@@ -67,9 +72,14 @@ class ListViewTest(TestCase):
     def test_displays_only_items_for_that_list(self):
         correct_list = List.objects.create()  
         Item.objects.create(text="itemey 1", list=correct_list)
+        Priority.objects.create(text="P1", list=correct_list)
+
         Item.objects.create(text="itemey 2", list=correct_list)
+        Priority.objects.create(text="P2", list=correct_list)
+
         other_list = List.objects.create()  
         Item.objects.create(text="other list item", list=other_list)
+        Priority.objects.create(text="otherP", list=other_list)
 
         response = self.client.get(f"/lists/{correct_list.id}/")  
 
