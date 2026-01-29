@@ -69,21 +69,22 @@ class NewVisitorTest(LiveServerTestCase):
         inputbox.send_keys("Medium")
         inputbox.send_keys(Keys.ENTER)
 
+        self.wait_for_row_in_list_table("2: Use Gearboxes to make a Machine (Medium)")
+        self.wait_for_row_in_list_table("1: Buy Gearboxes (High)")
 
         # Satisfied, he goes back to play game.
-    '''
+    
     def test_multiple_users_can_start_lists_at_different_urls(self):
         # Jack starts a new to-do list
         self.browser.get(self.live_server_url)
         inputbox = self.browser.find_element(By.ID, "id_new_item")
         inputbox.send_keys("Buy Gearboxes")
-        inputbox.send_keys(Keys.ENTER)
         # He check for Priority
         inputbox = self.browser.find_element(By.ID, "id_new_priority")
         inputbox.send_keys("High")
         inputbox.send_keys(Keys.ENTER)
 
-        self.wait_for_row_in_list_table("1: Buy Gearboxes")
+        self.wait_for_row_in_list_table("1: Buy Gearboxes (High)")
 
         # He notices that his list has a unique URL
         jack_list_url = self.browser.current_url
@@ -95,30 +96,30 @@ class NewVisitorTest(LiveServerTestCase):
         ## as a way of simulating a brand new user session  
         self.browser.delete_all_cookies()
 
-        # Francis visits the home page.  There is no sign of Edith's
-        # list
+        # Henry visits the home page.  There is no sign of Edith's
         self.browser.get(self.live_server_url)
         page_text = self.browser.find_element(By.TAG_NAME, "body").text
-        self.assertNotIn("Buy peacock feathers", page_text)
+        self.assertNotIn("Buy Gearboxes (High)", page_text)
 
-        # Francis starts a new list by entering a new item. He
-        # is less interesting than Edith...
+        # Henry starts a new list by entering a new item. 
         inputbox = self.browser.find_element(By.ID, "id_new_item")
-        inputbox.send_keys("Buy milk")
+        inputbox.send_keys("Buy Wheels")
+        inputbox = self.browser.find_element(By.ID, "id_new_priority")
+        inputbox.send_keys('High')
         inputbox.send_keys(Keys.ENTER)
-        self.wait_for_row_in_list_table("1: Buy milk")
+        self.wait_for_row_in_list_table("1: Buy Wheels (High)")
 
-        # Francis gets his own unique URL
-        francis_list_url = self.browser.current_url
-        self.assertRegex(francis_list_url, "/lists/.+")
-        self.assertNotEqual(francis_list_url, edith_list_url)
+        # Henry gets his own unique URL
+        henry_list_url = self.browser.current_url
+        self.assertRegex(henry_list_url, "/lists/.+")
+        self.assertNotEqual(henry_list_url, jack_list_url)
 
         # Again, there is no trace of Edith's list
         page_text = self.browser.find_element(By.TAG_NAME, "body").text
-        self.assertNotIn("Buy peacock feathers", page_text)
-        self.assertIn("Buy milk", page_text)
+        self.assertNotIn("Buy Gearboxes", page_text)
+        self.assertIn("Buy Wheels", page_text)
 
         # Satisfied, they both go back to sleep
-    '''
+    
 if __name__ == "__main__":
     unittest.main()
