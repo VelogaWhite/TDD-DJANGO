@@ -4,16 +4,16 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import WebDriverException
 import time
+import os
 
 MAX_WAIT = 10
 
 class NewVisitorTest(StaticLiveServerTestCase):
-
+    
     def setUp(self):
-        # If you have Geckodriver path issues, you might need to specify the Service
-        # from selenium.webdriver.firefox.service import Service
-        # self.browser = webdriver.Firefox(service=Service('/path/to/geckodriver'))
         self.browser = webdriver.Firefox()
+        if test_server := os.environ.get("TEST_SERVER"):   
+            self.live_server_url = "http://" + test_server 
 
     def tearDown(self):
         self.browser.quit()
