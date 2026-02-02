@@ -1,5 +1,6 @@
 from django.test import TestCase
 from lists.models import Item, List
+import lxml.html
 
 class HomePageTest(TestCase):
     def test_uses_home_template(self):
@@ -8,12 +9,11 @@ class HomePageTest(TestCase):
 
     def test_renders_input_form(self):
         response = self.client.get("/")
-        self.assertContains(response, '<form method="POST" action="/lists/new">')
-        self.assertContains(
-            response,
-            '<input name="item_text" id="id_new_item" placeholder="Enter a to-do item" />',
-            html=True,
-        )
+        parsed = lxml.html.fromstring(response.content)  
+        [form] = parsed.cssselect("form[method=POST]")   
+        self.assertEqual(form.get("action"), "/lists/new")
+        inputs = form.cssselect("input")  
+        self.assertIn("item_text", [input.get("name") for input in inputs])
 
 class NewItemTest(TestCase):
     def test_can_save_a_POST_request_to_an_existing_list(self):
@@ -62,15 +62,11 @@ class ListViewTest(TestCase):
     def test_renders_input_form(self):
         mylist = List.objects.create()
         response = self.client.get(f"/lists/{mylist.id}/")
-        self.assertContains(
-            response,
-            f'<form method="POST" action="/lists/{mylist.id}/add_item">',
-        )
-        self.assertContains(
-            response,
-            '<input name="item_text" id="id_new_item" placeholder="Enter a to-do item" />',
-            html=True,
-        )
+        parsed = lxml.html.fromstring(response.content)
+        [form] = parsed.cssselect("form[method=POST]")
+        self.assertEqual(form.get("action"), f"/lists/{mylist.id}/add_item")
+        inputs = form.cssselect("input")  
+        self.assertIn("item_text", [input.get("name") for input in inputs])
 
     def test_displays_only_items_for_that_list(self):
         correct_list = List.objects.create()  
