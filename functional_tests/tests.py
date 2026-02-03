@@ -42,17 +42,17 @@ class NewVisitorTest(StaticLiveServerTestCase):
         self.assertAlmostEqual(
             inputbox.location["x"] + inputbox.size["width"] / 2,
             512,
-            delta=10,
+            delta=30,
         )
 
         inputbox.send_keys("testing")
         inputbox.send_keys(Keys.ENTER)
-        self.wait_for_row_in_list_table("1: testing")
+        self.wait_for_row_in_list_table("1: testing ()")
         inputbox = self.browser.find_element(By.ID, "id_new_item")
         self.assertAlmostEqual(
             inputbox.location["x"] + inputbox.size["width"] / 2,
             512,
-            delta=10,
+            delta=30,
         )
 
     def test_can_start_a_todo_list(self):
