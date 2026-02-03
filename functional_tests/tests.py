@@ -28,7 +28,7 @@ class NewVisitorTest(LiveServerTestCase):
             except (AssertionError, WebDriverException):  
                 if time.time() - start_time > MAX_WAIT:  
                     raise  
-                time.sleep(0.5)  
+                time.sleep(2.5)  
 
     def test_can_start_a_todo_list(self):
         # Jack has heard about a cool new online to-do app.
