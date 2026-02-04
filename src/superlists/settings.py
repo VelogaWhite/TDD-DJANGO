@@ -120,4 +120,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / "static"
 
-CSRF_TRUSTED_ORIGINS = [https://huggingface.co/spaces/SDP2-2025-Group1/django-tdd-app]
+CSRF_TRUSTED_ORIGINS = ['https://sdp2-2025-group1-django-tdd-app.hf.space']
+
+# อนุญาตให้แสดงผลใน iframe ได้ทุกที่ (แก้เผ็ด Firefox)
+X_FRAME_OPTIONS = 'ALLOWALL'
