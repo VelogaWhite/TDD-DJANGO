@@ -9,4 +9,4 @@ COPY src /src
 
 WORKDIR /src
 
-CMD ["python", "manage.py", "runserver", "0.0.0.0:7860"]
+CMD ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:7860"]
