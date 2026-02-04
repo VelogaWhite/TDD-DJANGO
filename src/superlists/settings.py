@@ -49,7 +49,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',  <-- ใส่ # ไว้ข้างหน้าบรรทัดนี้ครับ
 ]
 
 ROOT_URLCONF = 'superlists.urls'
@@ -119,3 +119,5 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / "static"
+
+CSRF_TRUSTED_ORIGINS = [https://huggingface.co/spaces/SDP2-2025-Group1/django-tdd-app]
