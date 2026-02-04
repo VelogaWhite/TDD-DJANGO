@@ -120,7 +120,25 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / "static"
 
-CSRF_TRUSTED_ORIGINS = ['https://sdp2-2025-group1-django-tdd-app.hf.space']
 
 # อนุญาตให้แสดงผลใน iframe ได้ทุกที่ (แก้เผ็ด Firefox)
 X_FRAME_OPTIONS = 'ALLOWALL'
+
+# ==========================================
+# ส่วนแก้ไขปัญหา CSRF บน Hugging Face Spaces
+# ==========================================
+
+# 1. บอก Django ว่าเราอยู่หลัง Proxy ของ Hugging Face (สำคัญมากเพื่อให้รู้ว่าเป็น HTTPS)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# 2. ตั้งค่า Cookie ให้ทำงานข้ามโดเมนได้ (แก้ปัญหา Cookie not set ใน Iframe)
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SAMESITE = 'None'
+
+# 3. ยืนยัน Trusted Origins (อันเดิมที่คุณแก้ไปแล้ว ใส่ไว้เพื่อความชัวร์)
+CSRF_TRUSTED_ORIGINS = [
+    'https://sdp2-2025-group1-django-tdd-app.hf.space',
+    'https://huggingface.co'
+]
