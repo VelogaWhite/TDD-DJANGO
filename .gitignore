@@ -10,3 +10,4 @@ db.sqlite3
 __pycache__
 *.pyc
 env//static
+src/db.sqlite3
