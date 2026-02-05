@@ -12,4 +12,5 @@ __pycache__
 env//static
 src/db.sqlite3
 env/
-*.tar.gz
+*.tar.gzsrc/static
+src/static
