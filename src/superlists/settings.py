@@ -160,3 +160,14 @@ CSRF_TRUSTED_ORIGINS = [
     'https://sdp2-2025-group1-django-tdd-app.hf.space',
     'https://huggingface.co'
 ]
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {"class": "logging.StreamHandler"},
+    },
+    "loggers": {
+        "root": {"handlers": ["console"], "level": "INFO"},
+    },
+}
