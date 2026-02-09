@@ -22,19 +22,29 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-yn6!va0-@jjwu)5($7u@w5po_#1_dm_yvoa2g(142(vau5+7jx'
 
+ALLOWED_HOSTS = [
+    'sdp2-2025-group1-django-tdd-app.hf.space',
+    'localhost',
+    '127.0.0.1'
+]
+
 # SECURITY WARNING: don't run with debug turned on in production!
 if "DJANGO_DEBUG_FALSE" in os.environ:
     DEBUG = False
     SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
-    ALLOWED_HOSTS = [os.environ["DJANGO_ALLOWED_HOST"]]
+    
+    # 2. ถ้ามี DJANGO_ALLOWED_HOST ส่งมา ให้เติมเข้าไปใน list เดิม
+    if "DJANGO_ALLOWED_HOST" in os.environ:
+        ALLOWED_HOSTS.append(os.environ["DJANGO_ALLOWED_HOST"])
+        
+    # 3. รับ Path Database จาก Env (สำคัญสำหรับ Podman Mount)
+    db_path = os.environ["DJANGO_DB_PATH"]  
 else:
     DEBUG = True
     SECRET_KEY = "insecure-key-for-dev"
-    ALLOWED_HOSTS = []
+    # ไม่ต้องแก้ ALLOWED_HOSTS เพิ่ม
+    db_path = BASE_DIR / "db.sqlite3"
 
-ALLOWED_HOSTS = ['sdp2-2025-group1-django-tdd-app.hf.space', 
-    'localhost', 
-    '127.0.0.1']
 
 
 # Application definition
@@ -81,12 +91,12 @@ WSGI_APPLICATION = 'superlists.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
+# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "NAME": db_path  
     }
 }
 
