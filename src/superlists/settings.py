@@ -38,7 +38,7 @@ if "DJANGO_DEBUG_FALSE" in os.environ:
         ALLOWED_HOSTS.append(os.environ["DJANGO_ALLOWED_HOST"])
         
     # 3. รับ Path Database จาก Env (สำคัญสำหรับ Podman Mount)
-    db_path = os.environ["DJANGO_DB_PATH"]  
+    db_path = os.environ.get("DJANGO_DB_PATH", BASE_DIR / "db.sqlite3")
 else:
     DEBUG = True
     SECRET_KEY = "insecure-key-for-dev"
