@@ -29,4 +29,4 @@ ENV DJANGO_DEBUG_FALSE=1
 # 3. สลับ User เป็น nonroot (ตอนนี้เขียนไฟล์ได้แล้ว)
 USER nonroot
 
-CMD ["gunicorn", "--bind", ":7860", "superlists.wsgi:application"]
+CMD ["sh", "-c", "python manage.py migrate && gunicorn --bind :7860 superlists.wsgi:application"]
