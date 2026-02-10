@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 db.sqlite3 echo .venv
 db.sqlite3
 .venv
@@ -16,3 +17,19 @@ env/
 src/static
 container.db.sqlite3
 container.db.sqlite3
+=======
+# .gitignore
+
+# Environment folder
+myenv/
+env/
+.venv/
+venv/
+
+# Database
+db.sqlite3
+
+# Python compiled files
+__pycache__/
+*.pyc
+>>>>>>> origin/feature/completed-priority
