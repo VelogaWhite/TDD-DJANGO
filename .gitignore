@@ -1,18 +1,14 @@
-db.sqlite3 echo .venv
-db.sqlite3
-.venv
-__pycache__
-*.pyc
-__pycache__
-*.pyc
-db.sqlite3
-.venv
-__pycache__
-*.pyc
-env//static
-src/db.sqlite3
+# .gitignore
+
+# Environment folder
+myenv/
 env/
-*.tar.gzsrc/static
-src/static
-container.db.sqlite3
-container.db.sqlite3
+.venv/
+venv/
+
+# Database
+db.sqlite3
+
+# Python compiled files
+__pycache__/
+*.pyc
