@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Edit Item</title>
+    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white text-center py-3">
+                        <h3 class="mb-0">แก้ไขรายการ (Edit Item)</h3>
+                    </div>
+                    <div class="card-body p-4">
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">สิ่งที่จะแก้:</label>
+                                <input type="text" name="item_text" value="{{ item.text }}" class="form-control form-control-lg" required>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">ความสำคัญ (Priority):</label>
+                                <input type="text" name="priority" value="{{ item.priority }}" class="form-control" placeholder="เช่น High, Medium, Low">
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg">บันทึก (Save Changes)</button>
+                                <a href="/lists/{{ item.list.id }}/" class="btn btn-outline-secondary">ยกเลิก (Cancel)</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

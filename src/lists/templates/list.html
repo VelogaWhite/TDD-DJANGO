@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block header_text %}Your To-Do list{% endblock %}
+
+{% block form_action %}/lists/{{ list.id }}/add_item{% endblock %}
+
+{% block table %}
+  <table class="table table-hover mt-3" id="id_list_table">
+    <thead class="table-light">
+        <tr>
+            <th>No.</th>
+            <th>Item</th>
+            <th>Priority</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for item in list.item_set.all %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        
+        <td>{{ item.text }}</td>
+        
+        <td>
+            <span class="badge rounded-pill fw-normal fs-6 
+                {% if item.priority == 'High' %}
+                    bg-danger text-white
+                {% elif item.priority == 'Medium' %}
+                    bg-warning text-dark
+                {% else %}
+                    bg-secondary text-white
+                {% endif %}">
+                {{ item.priority }}
+            </span>
+        </td>
+
+        <td>
+            <a href="{% url 'edit_item' item.id %}" class="btn btn-outline-secondary btn-sm">
+                Edit
+            </a>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
