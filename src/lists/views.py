@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-from django.shortcuts import redirect, render
-=======
 from django.shortcuts import redirect, render, get_object_or_404
->>>>>>> origin/feature/completed-priority
 from lists.models import Item, List
 
 def home_page(request):
@@ -30,8 +26,6 @@ def add_item(request, list_id):
     )
     return redirect(f"/lists/{our_list.id}/")
 
-<<<<<<< HEAD
-=======
 def edit_item(request, item_id):
     item = get_object_or_404(Item, id=item_id)
     
@@ -41,4 +35,3 @@ def edit_item(request, item_id):
         item.save()
         return redirect(f'/lists/{item.list.id}/')
     return render(request, 'edit_text.html', {'item': item})
->>>>>>> origin/feature/completed-priority
