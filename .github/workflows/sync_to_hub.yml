@@ -17,4 +17,4 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         # Pushes to the NEW Calculator space (change the name below!)
         # Note: We push to 'main' on HF because Spaces usually run from their own main branch
-        run: git push --force https://oauth2:$HF_TOKEN@huggingface.co/spaces/SDP2-2025-Group1/calculator-tdd HEAD:main
+        run: git push --force https://oauth2:$HF_TOKEN@huggingface.co/spaces/VelogaWhite/Django_Cal_Javascript HEAD:main
