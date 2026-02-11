@@ -1,5 +1,59 @@
 {% extends 'base.html' %}
 
-{% block header_text %}Start a new To-Do list{% endblock %}
+{% block content %}
+    <div class="card shadow-sm text-start">
+        <div class="card-body">
+            
+            <!-- Input 1 -->
+            <div class="mb-3">
+                <input type="number" id="id_number_1" class="form-control form-control-lg" placeholder="Enter first number">
+            </div>
+            
+            <!-- Input 2 -->
+            <div class="mb-3">
+                <input type="number" id="id_number_2" class="form-control form-control-lg" placeholder="Enter second number">
+            </div>
 
-{% block form_action %}/lists/new{% endblock %}
+            <!-- Buttons (type="button" ensures the browser doesn't try to submit a form) -->
+            <div class="d-grid gap-2 d-md-block mt-4 text-center">
+                <button type="button" id="id_btn_sum" class="btn btn-primary btn-lg" onclick="calculate('sum')">Sum</button>
+                <button type="button" id="id_btn_subtract" class="btn btn-danger btn-lg" onclick="calculate('subtract')">Subtract</button>
+            </div>
+
+            <!-- Result Display (Hidden by default) -->
+            <div class="mt-4 p-3 bg-light rounded border text-center" id="result_container" style="display:none;">
+                <h2 id="id_result" class="mb-0 text-dark"></h2>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function calculate(action) {
+            // 1. Get values from inputs
+            const num1 = parseFloat(document.getElementById('id_number_1').value);
+            const num2 = parseFloat(document.getElementById('id_number_2').value);
+            let result = 0;
+
+            // 2. Validate input (Optional but good practice)
+            if (isNaN(num1) || isNaN(num2)) {
+                alert("Please enter valid numbers");
+                return;
+            }
+
+            // 3. Perform calculation
+            if (action === 'sum') {
+                result = num1 + num2;
+            } else if (action === 'subtract') {
+                result = num1 - num2;
+            }
+
+            // 4. Display the result
+            const resultElement = document.getElementById('id_result');
+            const container = document.getElementById('result_container');
+            
+            resultElement.innerText = "Result: " + result;
+            container.style.display = 'block'; 
+        }
+    </script>
+{% endblock %}
