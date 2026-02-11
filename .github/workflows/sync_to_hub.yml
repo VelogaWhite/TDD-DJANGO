@@ -1,7 +1,7 @@
-name: Sync to Hugging Face hub
+name: Sync Calculator to HF
 on:
   push:
-  pull_request:
+    branches: [ "calculator-app" ]  # <--- ONLY runs on calculator branch
   workflow_dispatch:
 
 jobs:
@@ -15,4 +15,6 @@ jobs:
       - name: Push to hub
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: git push --force https://oauth2:$HF_TOKEN@huggingface.co/spaces/SDP2-2025-Group1/django-tdd-app HEAD:main
+        # Pushes to the NEW Calculator space (change the name below!)
+        # Note: We push to 'main' on HF because Spaces usually run from their own main branch
+        run: git push --force https://oauth2:$HF_TOKEN@huggingface.co/spaces/SDP2-2025-Group1/calculator-tdd HEAD:main
