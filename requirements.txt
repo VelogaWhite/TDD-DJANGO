@@ -3,6 +3,7 @@ async-generator==1.10
 attrs==25.4.0
 certifi==2026.1.4
 Django==6.0.2
+gunicorn==25.0.3
 h11==0.16.0
 idna==3.11
 importlib_metadata==8.7.1
