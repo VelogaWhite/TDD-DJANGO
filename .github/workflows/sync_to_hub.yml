@@ -1,7 +1,7 @@
-name: Sync to Hugging Face hub
+name: Sync To-Do App to HF
 on:
   push:
-  pull_request:
+    branches: [ "feature/refactor-priority" ]  # <--- ONLY runs on this branch
   workflow_dispatch:
 
 jobs:
@@ -15,4 +15,5 @@ jobs:
       - name: Push to hub
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        # Pushes to the OLD space (django-tdd-app)
         run: git push --force https://oauth2:$HF_TOKEN@huggingface.co/spaces/SDP2-2025-Group1/django-tdd-app HEAD:main
