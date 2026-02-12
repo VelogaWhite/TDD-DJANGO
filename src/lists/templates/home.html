@@ -18,6 +18,8 @@
             <div class="d-grid gap-2 d-md-block mt-4 text-center">
                 <button type="button" id="id_btn_sum" class="btn btn-primary btn-lg" onclick="calculate('sum')">Sum</button>
                 <button type="button" id="id_btn_subtract" class="btn btn-danger btn-lg" onclick="calculate('subtract')">Subtract</button>
+                <button type="button" id="id_btn_multiplication" class="btn btn-primary btn-lg" onclick="calculate('multiplication')">Multiplication</button>
+                <button type="button" id="id_btn_division" class="btn btn-danger btn-lg" onclick="calculate('division')">Division</button>
             </div>
 
             <!-- Result Display (Hidden by default) -->
@@ -46,6 +48,16 @@
                 result = num1 + num2;
             } else if (action === 'subtract') {
                 result = num1 - num2;
+            } else if (action === 'multiplication') {
+                result = num1 * num2;
+            } else if (action === 'division') {
+                if (num2 === 0){
+                    alert("Please Do not Enter Num2 as 0");
+                    return;
+                }
+                else {
+                    result = num1 / num2;
+                }
             }
 
             // 4. Display the result
