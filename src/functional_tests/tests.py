@@ -29,7 +29,26 @@ class CalculatorTest(StaticLiveServerTestCase):
             except (AssertionError, WebDriverException):  
                 if time.time() - start_time > MAX_WAIT:  
                     raise  
-                time.sleep(0.5)  
+                time.sleep(0.5)
+
+    def wait_for_alert(self, expected_text):
+        start_time = time.time()
+        while True:
+            try:
+                # Focus on Alert
+                alert = self.browser.switch_to.alert
+
+                # Check Alert Text
+                self.assertIn(expected_text, alert.text)
+                time.sleep(0.5)
+                
+                # Press Ok
+                alert.accept()
+                return
+            except (AssertionError, NoAlertPresentException):  
+                if time.time() - start_time > MAX_WAIT:  
+                    raise  
+                time.sleep(0.5)
 
     def test_can_perform_calculations(self):
         # Jack needs to calculate some numbers.
@@ -118,4 +137,23 @@ class CalculatorTest(StaticLiveServerTestCase):
 
         # The page updates and shows the result "Result: 12"
         self.wait_for_result("Result: 10")
+        time.sleep(1)
+
+        # Still Not Satisfied with Division, he decides to test DivideBy0
+        # He clears the inputs and enters new numbers: 100 and 0
+        num_input_1 = self.browser.find_element(By.ID, "id_number_1")
+        num_input_2 = self.browser.find_element(By.ID, "id_number_2")
+        
+        num_input_1.clear()
+        num_input_2.clear()
+        
+        num_input_1.send_keys("100")
+        num_input_2.send_keys("0")
+
+        # He clicks the "Division" button.
+        sub_button = self.browser.find_element(By.ID, "id_btn_division")
+        sub_button.click()
+
+        # The page updates and shows the result "Result: 12"
+        self.wait_for_alert("Please Do not Enter Num2 as 0")
         time.sleep(1)
