@@ -61,6 +61,7 @@ class CalculatorTest(StaticLiveServerTestCase):
 
         # The page updates and shows the result "Result: 15"
         self.wait_for_result("Result: 15")
+        time.sleep(1)
 
         # Satisfied with addition, he decides to test subtraction.
         # He clears the inputs and enters new numbers: 20 and 8
@@ -74,9 +75,47 @@ class CalculatorTest(StaticLiveServerTestCase):
         num_input_2.send_keys("8")
 
         # He clicks the "Subtract" button.
-        # (We need to re-find the element to avoid StaleElementReferenceException if the page reloaded)
         sub_button = self.browser.find_element(By.ID, "id_btn_subtract")
         sub_button.click()
 
         # The page updates and shows the result "Result: 12"
         self.wait_for_result("Result: 12")
+        time.sleep(1)
+
+        # Satisfied with subtraction, he decides to test multiplication
+        # He clears the inputs and enters new numbers: 8 and 10
+        num_input_1 = self.browser.find_element(By.ID, "id_number_1")
+        num_input_2 = self.browser.find_element(By.ID, "id_number_2")
+        
+        num_input_1.clear()
+        num_input_2.clear()
+        
+        num_input_1.send_keys("8")
+        num_input_2.send_keys("10")
+
+        # He clicks the "Multiplication" button.
+        sub_button = self.browser.find_element(By.ID, "id_btn_multiplication")
+        sub_button.click()
+
+        # The page updates and shows the result "Result: 12"
+        self.wait_for_result("Result: 80")
+        time.sleep(1)
+
+        # Satisfied with multiplication, he decides to test division
+        # He clears the inputs and enters new numbers: 80 and 8
+        num_input_1 = self.browser.find_element(By.ID, "id_number_1")
+        num_input_2 = self.browser.find_element(By.ID, "id_number_2")
+        
+        num_input_1.clear()
+        num_input_2.clear()
+        
+        num_input_1.send_keys("80")
+        num_input_2.send_keys("8")
+
+        # He clicks the "Division" button.
+        sub_button = self.browser.find_element(By.ID, "id_btn_division")
+        sub_button.click()
+
+        # The page updates and shows the result "Result: 12"
+        self.wait_for_result("Result: 10")
+        time.sleep(1)
