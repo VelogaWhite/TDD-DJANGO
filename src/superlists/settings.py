@@ -10,7 +10,6 @@ DEBUG = True
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'yp-sawatdee.servequake.com', 'sdp2-2025-group1-django-tdd-app.hf.space']
 db_path = BASE_DIR / "db.sqlite3"
 
-# ตรวจสอบว่าเป็นการรันบน Production (Hugging Face หรือ Azure)
 if "DJANGO_DEBUG_FALSE" in os.environ:
     DEBUG = False
     SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", SECRET_KEY)
@@ -20,30 +19,24 @@ if "DJANGO_DEBUG_FALSE" in os.environ:
         
     db_path = os.environ.get("DJANGO_DB_PATH", BASE_DIR / "db.sqlite3")
 
-    # --- การตั้งค่าความปลอดภัย (สำคัญมากสำหรับ CSRF) ---
-    
-    # 1. ตรวจสอบว่าเป็น HTTPS (Hugging Face) หรือ HTTP (Azure/Dev)
-    # ถ้าโดเมนไม่มี sdp2-2025... (Hugging Face) แสดงว่าเป็น Azure HTTP
+    # --- การตั้งค่าความปลอดภัย ---
     if 'hf.space' in os.environ.get("DJANGO_ALLOWED_HOST", "") or 'huggingface.co' in os.environ.get("HTTP_REFERER", ""):
-        # สำหรับ Hugging Face (HTTPS)
         SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
         CSRF_COOKIE_SECURE = True
         SESSION_COOKIE_SECURE = True
         CSRF_COOKIE_SAMESITE = 'None'
         SESSION_COOKIE_SAMESITE = 'None'
     else:
-        # สำหรับ Azure (HTTP) - ต้องปิด Secure เพื่อให้ส่ง Cookie ผ่าน HTTP ได้
         SECURE_PROXY_SSL_HEADER = None
         CSRF_COOKIE_SECURE = False
         SESSION_COOKIE_SECURE = False
         CSRF_COOKIE_SAMESITE = 'Lax'
         SESSION_COOKIE_SAMESITE = 'Lax'
 else:
-    # สำหรับ Development (Local)
+    DEBUG = True
     CSRF_COOKIE_SECURE = False
     SESSION_COOKIE_SECURE = False
 
-# ยืนยัน Trusted Origins ให้ครบทั้งสองโปรโตคอล
 CSRF_TRUSTED_ORIGINS = [
     'https://sdp2-2025-group1-django-tdd-app.hf.space',
     'http://yp-sawatdee.servequake.com',
@@ -97,6 +90,10 @@ DATABASES = {
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / "static"
+
+# เพิ่มบรรทัดนี้เพื่อให้ Whitenoise ทำงานถูกต้องใน Production/Test
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 X_FRAME_OPTIONS = 'ALLOWALL'
 
 LOGGING = {
