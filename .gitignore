@@ -13,3 +13,7 @@ container.db.sqlite3
 # Python compiled files
 __pycache__/
 *.pyc
+
+
+.git
+.git/
