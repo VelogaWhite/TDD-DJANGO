@@ -52,9 +52,44 @@
         force_source: true  
         state: present
 
+    - name: Ensure .secret-key file exists
+      # the intention is that this only happens once per server
+      ansible.builtin.copy:  
+        dest: ~/.secret-key
+        content: "{{ lookup('password', '/dev/null length=32 chars=ascii_letters') }}"  
+        mode: 0600
+        force: false  # do not recreate file if it already exists.
+
+    - name: Read secret key back from file
+      ansible.builtin.slurp:  
+        src: ~/.secret-key
+      register: secret_key
+
+    - name: Ensure db.sqlite3 file exists outside container
+      ansible.builtin.file:
+        path: "{{ ansible_env.HOME }}/db.sqlite3"  
+        state: touch  
+        owner: 1234  # so nonroot user can access it in container
+      become: true  # needed for ownership change
+
     - name: Run container
       community.docker.docker_container:
         name: superlists
-        image: superlists  
+        image: superlists
         state: started
-        recreate: true 
+        recreate: true
+        env:
+          DJANGO_DEBUG_FALSE: "1"
+          DJANGO_SECRET_KEY: "{{ secret_key.content | b64decode }}"
+          DJANGO_ALLOWED_HOST: "{{ inventory_hostname }}"
+          DJANGO_DB_PATH: "/home/nonroot/db.sqlite3"
+        mounts:  
+          - type: bind
+            source: "{{ ansible_env.HOME }}/db.sqlite3"  
+            target: /home/nonroot/db.sqlite3
+        ports: 80:7860
+
+    - name: Run migration inside container
+      community.docker.docker_container_exec:  
+        container: superlists
+        command: ./manage.py migrate
