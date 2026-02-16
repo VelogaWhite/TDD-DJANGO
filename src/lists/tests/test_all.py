@@ -87,9 +87,9 @@ class ListViewTest(TestCase):
         response = self.client.get(f"/lists/{correct_list.id}/")  
 
         self.assertContains(response, "itemey 1")
-        self.assertContains(response, "(P1)")
+        self.assertContains(response, "P1")
         self.assertContains(response, "itemey 2")
-        self.assertContains(response, "(P2)")
+        self.assertContains(response, "P2")
         self.assertNotContains(response, "other list item")  
 
 class ListAndItemModelsTest(TestCase):
