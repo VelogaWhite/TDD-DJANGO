@@ -33,11 +33,18 @@ def add_item(request, list_id):
     item_text = request.POST.get("item_text", "")
     priority_text = request.POST.get("priority_text", "")
     
-    # Check if the input is empty for existing lists too
-    if not item_text:
-        return render(request, "list.html", {"list": our_list, "error": "You can't have an empty list item"})
+    # 1. สร้าง Item รอไว้ (แต่ยังไม่เซฟ)
+    item = Item(text=item_text, priority=priority_text, list=our_list)
+    
+    try:
+        # 2. ให้ Model เป็นคนตรวจ!
+        item.full_clean()
+        item.save()
+    except ValidationError:
+        # 3. ถ้าเกิด Error ก็ส่งกลับไปหน้า list.html พร้อมข้อความ
+        error = "You can't have an empty list item"
+        return render(request, "list.html", {"list": our_list, "error": error})
         
-    Item.objects.create(text=item_text, priority=priority_text, list=our_list)
     return redirect(f"/lists/{our_list.id}/")
 
 def edit_item(request, item_id):
