@@ -1,6 +1,7 @@
 from django.test import TestCase
 from lists.models import Item, List
 import lxml.html
+from django.utils.html import escape
 
 class HomePageTest(TestCase):
     def test_uses_home_template(self):
@@ -16,7 +17,6 @@ class HomePageTest(TestCase):
         self.assertIn("item_text", [input.get("name") for input in inputs])
         self.assertIn("priority_text", [input.get("name") for input in inputs])  
   
-
 class NewItemTest(TestCase):
     def test_can_save_a_POST_request_to_an_existing_list(self):
         correct_list = List.objects.create()
@@ -59,6 +59,20 @@ class NewListTest(TestCase):
                                                         ,'priority_text': 'Medium'})
         new_list = List.objects.first()
         self.assertRedirects(response, f'/lists/{new_list.id}/')
+
+    def test_validation_errors_are_sent_back_to_home_page_template(self):
+        # 1. จำลองการส่ง Form เปล่าๆ (POST request) ไปที่เซิร์ฟเวอร์
+        response = self.client.post('/lists/new', data={'item_text': ''})
+        
+        # 2. เช็คว่าไม่มีอะไรถูกบันทึกลง Database
+        self.assertEqual(Item.objects.count(), 0)
+        
+        # 3. เช็คว่าตอบกลับด้วยหน้าจอเดิม (home.html)
+        self.assertTemplateUsed(response, 'home.html')
+        
+        # 4. เช็คว่ามีข้อความ Error แฝงมาใน HTML ที่ส่งกลับไปให้เบราว์เซอร์
+        expected_error = escape("You can't have an empty list item")
+        self.assertContains(response, expected_error)
 
 class ListViewTest(TestCase):
     def test_uses_list_template(self):

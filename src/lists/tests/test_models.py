@@ -1,5 +1,6 @@
 from django.test import TestCase
 from lists.models import Item, List
+from django.core.exceptions import ValidationError
 
 class ListAndItemModelsTest(TestCase):
     def test_saving_and_retrieving_items(self):
@@ -33,3 +34,11 @@ class ListAndItemModelsTest(TestCase):
         self.assertEqual(second_saved_item.priority, "Low")
         self.assertEqual(second_saved_item.list, mylist)
 
+    def test_cannot_save_empty_list_items(self):
+        list_ = List.objects.create()
+        item = Item(list=list_, text='') # 1. ลองสร้างไอเท็มแบบไม่มีตัวหนังสือ
+        
+        # 2. คาดหวังว่าคำสั่งข้างในนี้จะต้องเกิด ValidationError ขึ้นแน่ๆ
+        with self.assertRaises(ValidationError):
+            item.save()
+            item.full_clean()
