@@ -1,95 +1,153 @@
 ---
 - hosts: all
+  
+  vars:
+    # ชื่อ Database และ User ที่เราต้องการ
+    db_name: superlists
+    db_user: superlists
+    # Port ที่จะเปิดให้เข้าถึง App จากภายนอก
+    app_port: 80 
 
   tasks:
-
-    - name: Install docker  
-      ansible.builtin.apt:  
-        name: docker.io  
+    - name: Install docker
+      ansible.builtin.apt:
+        name: docker.io
         state: latest
         update_cache: true
       become: true
 
-    - name: Add our user to the docker group, so we don't need sudo/become
-      ansible.builtin.user:  
-        name: '{{ ansible_user }}'  
+    - name: Add user to docker group
+      ansible.builtin.user:
+        name: '{{ ansible_user }}'
         groups: docker
-        append: true  # don't remove any existing groups.
+        append: true
       become: true
 
-    - name: Reset ssh connection to allow the user/group change to take effect
+    - name: Reset ssh connection
       ansible.builtin.meta: reset_connection
-    
+
+    # -----------------------------------------------------------
+    # 1. จัดการเรื่อง Image (เหมือนเดิม)
+    # -----------------------------------------------------------
     - name: Build container image locally
       community.docker.docker_image:
         name: superlists
         source: build
         state: present
         build:
-          path: "{{ playbook_dir }}/.." # อ้างอิงถอยหลังจากที่อยู่ไฟล์ playbook
+          path: "{{ playbook_dir }}/.."
           dockerfile: Dockerfile
-          platform: linux/amd64  
+          platform: linux/amd64
         force_source: true
       delegate_to: 127.0.0.1
 
-    - name: Export container image locally  
+    - name: Export container image locally
       community.docker.docker_image:
         name: superlists
         archive_path: /tmp/superlists-img.tar
         source: local
       delegate_to: 127.0.0.1
 
-    - name: Upload image to server  
+    - name: Upload image to server
       ansible.builtin.copy:
         src: /tmp/superlists-img.tar
         dest: /tmp/superlists-img.tar
 
-    - name: Import container image on server  
+    - name: Import container image on server
       community.docker.docker_image:
         name: superlists
         load_path: /tmp/superlists-img.tar
         source: load
-        force_source: true  
+        force_source: true
         state: present
 
+    # -----------------------------------------------------------
+    # 2. จัดการเรื่อง Secrets (สร้าง Password ให้ DB อัตโนมัติ)
+    # -----------------------------------------------------------
     - name: Ensure .secret-key file exists
-      # the intention is that this only happens once per server
-      ansible.builtin.copy:  
+      ansible.builtin.copy:
         dest: ~/.secret-key
-        content: "{{ lookup('password', '/dev/null length=32 chars=ascii_letters') }}"  
+        content: "{{ lookup('password', '/dev/null length=32 chars=ascii_letters') }}"
         mode: 0600
-        force: false  # do not recreate file if it already exists.
+        force: false
 
-    - name: Read secret key back from file
-      ansible.builtin.slurp:  
+    - name: Ensure .db-password file exists (สร้างไฟล์เก็บรหัส DB)
+      ansible.builtin.copy:
+        dest: ~/.db-password
+        content: "{{ lookup('password', '/dev/null length=16 chars=ascii_letters') }}"
+        mode: 0600
+        force: false
+
+    - name: Read secret key
+      ansible.builtin.slurp:
         src: ~/.secret-key
       register: secret_key
 
-    - name: Ensure db.sqlite3 file exists outside container
-      ansible.builtin.file:
-        path: "{{ ansible_env.HOME }}/db.sqlite3"  
-        state: touch  
-        owner: 1234  # so nonroot user can access it in container
-      become: true  # needed for ownership change
+    - name: Read db password
+      ansible.builtin.slurp:
+        src: ~/.db-password
+      register: db_password
 
-    - name: Run container
+    # -----------------------------------------------------------
+    # 3. สร้าง Network และ Database Container
+    # -----------------------------------------------------------
+    
+    - name: Create a network for containers to communicate
+      community.docker.docker_network:
+        name: superlists-net
+
+    - name: Ensure database data directory exists on host
+      ansible.builtin.file:
+        path: "{{ ansible_env.HOME }}/postgres-data"
+        state: directory
+        mode: '0755'
+
+    - name: Run Database Container (PostgreSQL)
+      community.docker.docker_container:
+        name: db
+        image: postgres:15-alpine
+        state: started
+        restart_policy: always
+        networks:
+          - name: superlists-net
+        env:
+          POSTGRES_DB: "{{ db_name }}"
+          POSTGRES_USER: "{{ db_user }}"
+          POSTGRES_PASSWORD: "{{ db_password.content | b64decode }}"
+        volumes:
+          - "{{ ansible_env.HOME }}/postgres-data:/var/lib/postgresql/data"
+        # ไม่ต้องเปิด Ports ออกมาข้างนอก ให้คุยกันแค่ใน Network ก็พอ เพื่อความปลอดภัย
+
+    # -----------------------------------------------------------
+    # 4. สร้าง App Container
+    # -----------------------------------------------------------
+
+    - name: Run App Container
       community.docker.docker_container:
         name: superlists
         image: superlists
         state: started
         recreate: true
+        restart_policy: always
+        networks:
+          - name: superlists-net
+        ports:
+          - "{{ app_port }}:7860"
         env:
           DJANGO_DEBUG_FALSE: "1"
           DJANGO_SECRET_KEY: "{{ secret_key.content | b64decode }}"
           DJANGO_ALLOWED_HOST: "{{ inventory_hostname }}"
-          DJANGO_DB_PATH: "/home/nonroot/db.sqlite3"
-        mounts:  
-          - type: bind
-            source: "{{ ansible_env.HOME }}/db.sqlite3"  
-            target: /home/nonroot/db.sqlite3
-        ports: 80:7860
+          # ส่งค่า Config DB ไปให้ settings.py
+          DB_HOST: "db"  # ชื่อนี้ต้องตรงกับชื่อ container ของ database
+          DB_NAME: "{{ db_name }}"
+          DB_USER: "{{ db_user }}"
+          DB_PASSWORD: "{{ db_password.content | b64decode }}"
+          DB_PORT: "5432"
 
+    # -----------------------------------------------------------
+    # 5. สั่ง Migrate ข้อมูล
+    # -----------------------------------------------------------
     - name: Run migration inside container
-      community.docker.docker_container_exec:  
+      community.docker.docker_container_exec:
         container: superlists
         command: ./manage.py migrate

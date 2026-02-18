@@ -81,12 +81,27 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'superlists.wsgi.application'
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": db_path  
+# Database Configuration
+# เช็กว่ามี Environment Variable ชื่อ DB_HOST ส่งมาไหม? (ส่งมาจาก Docker)
+if os.environ.get('DB_HOST'):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('DB_NAME', 'superlists'),
+            'USER': os.environ.get('DB_USER', 'superlists'),
+            'PASSWORD': os.environ.get('DB_PASSWORD', 'superlists'),
+            'HOST': os.environ.get('DB_HOST'),  # ชื่อ Container ของ DB
+            'PORT': os.environ.get('DB_PORT', '5432'),
+        }
     }
-}
+else:
+    # ถ้าไม่มี (เช่นรันในเครื่องตัวเอง) ให้ใช้ SQLite เหมือนเดิม
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': db_path,
+        }
+    }
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / "static"
