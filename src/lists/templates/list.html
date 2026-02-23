@@ -44,3 +44,87 @@
     </tbody>
   </table>
 {% endblock %}
+{% block extra_js %}
+<script>
+document.getElementById('todo-form').addEventListener('submit', function(e) {
+    e.preventDefault(); // หยุดการรีเฟรชหน้าเว็บ
+
+    const form = this;
+    const formData = new FormData(form);
+    const url = form.getAttribute('action');
+
+    // ยิง Request แบบเบื้องหลัง
+    fetch(url, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest' // บอก Django ว่านี่คือ AJAX
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => { throw err; });
+        }
+        return response.json();
+    })
+    .then(data => {
+        // 1. ล้างค่าในช่องกรอกข้อมูล
+        document.getElementById('id_new_item').value = '';
+        document.getElementById('id_new_priority').value = '';
+
+        // 2. ลบข้อความ Error เก่า (ถ้ามีค้างอยู่)
+        const errorDiv = document.querySelector('.invalid-feedback');
+        if (errorDiv) errorDiv.remove();
+
+        // 3. เตรียม Badge สีของ Priority
+        let badgeClass = 'bg-secondary text-white';
+        if (data.priority === 'High') badgeClass = 'bg-danger text-white';
+        else if (data.priority === 'Medium') badgeClass = 'bg-warning text-dark';
+
+        // 4. นับเลขลำดับ และสร้าง HTML สำหรับแถวใหม่
+        const tbody = document.querySelector('#id_list_table tbody');
+        const rowCount = tbody.querySelectorAll('tr').length + 1; 
+        
+        const newRow = `
+          <tr>
+            <td>${rowCount}</td>
+            <td>${data.text}</td>
+            <td>
+                <span class="badge rounded-pill fw-normal fs-6 ${badgeClass}">
+                    ${data.priority}
+                </span>
+            </td>
+            <td>
+                <a href="/lists/edit_item/${data.id}/" class="btn btn-outline-secondary btn-sm">
+                    Edit
+                </a>
+            </td>
+          </tr>
+        `;
+        
+        // 5. แทรกแถวใหม่ต่อท้ายตารางอย่างนุ่มนวล
+        tbody.insertAdjacentHTML('beforeend', newRow);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        if (error.error) {
+            // แทนที่จะใช้ alert เราจะสร้าง div แจ้งเตือนสวยๆ ใส่ใต้ช่อง input
+            const inputField = document.getElementById('id_new_item');
+            
+            // ลบ Error เก่าออกก่อน (ถ้ามี)
+            const oldError = document.querySelector('.invalid-feedback');
+            if (oldError) oldError.remove();
+
+            // สร้าง Element ใหม่แสดง Error
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block fw-bold fs-5';
+            errorDiv.innerHTML = error.error;
+            
+            // แทรก Error ลงไปต่อท้ายช่อง input
+            inputField.parentNode.insertBefore(errorDiv, inputField.nextSibling);
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -98,9 +98,12 @@
 
     - name: Ensure database data directory exists on host
       ansible.builtin.file:
-        path: "{{ ansible_env.HOME }}/postgres-data"
+        path: "{{ ansible_facts['env']['HOME'] }}/postgres-data"
         state: directory
         mode: '0755'
+        owner: azureuser
+        group: azureuser
+      become: true # ใช้ sudo เพื่อสร้างโฟลเดอร์
 
     - name: Run Database Container (PostgreSQL)
       community.docker.docker_container:
@@ -151,3 +154,8 @@
       community.docker.docker_container_exec:
         container: superlists
         command: ./manage.py migrate
+
+    - name: Collect static files
+      community.docker.docker_container_exec:
+        container: superlists
+        command: python manage.py collectstatic --noinput

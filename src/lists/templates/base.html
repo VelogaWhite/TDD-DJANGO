@@ -20,7 +20,7 @@
         <div class="row justify-content-center">
           <div class="col-lg-6">
             
-            <form method="POST" action="{% block form_action %}{% endblock %}">
+            <form id="todo-form" method="POST" action="{% block form_action %}{% endblock %}">
               <input
                 class="form-control form-control-lg text-center"
                 name="item_text"
@@ -66,5 +66,7 @@
     </div>
     
     <script src="/static/bootstrap/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+    
   </body>
 </html>

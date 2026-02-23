@@ -1,6 +1,7 @@
 from django.shortcuts import redirect, render, get_object_or_404
 from lists.models import Item, List
 from django.core.exceptions import ValidationError
+from django.http import JsonResponse
 
 def home_page(request):
     return render(request, "home.html")
@@ -33,16 +34,30 @@ def add_item(request, list_id):
     item_text = request.POST.get("item_text", "")
     priority_text = request.POST.get("priority_text", "")
     
-    # 1. สร้าง Item รอไว้ (แต่ยังไม่เซฟ)
     item = Item(text=item_text, priority=priority_text, list=our_list)
     
+    # เช็คว่า Request นี้ส่งมาจาก JavaScript (Fetch API) หรือไม่
+    is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.headers.get('Accept') == 'application/json'
+
     try:
-        # 2. ให้ Model เป็นคนตรวจ!
         item.full_clean()
         item.save()
+        
+        # 2. ถ้าเป็น AJAX ให้ Return ข้อมูลเป็น JSON กลับไป
+        if is_ajax:
+            return JsonResponse({
+                "id": item.id,
+                "text": item.text,
+                "priority": item.priority
+            }, status=201)
+            
     except ValidationError:
-        # 3. ถ้าเกิด Error ก็ส่งกลับไปหน้า list.html พร้อมข้อความ
         error = "You can't have an empty list item"
+        
+        # 3. ถ้าเป็น AJAX ให้ Return Error กลับไปเป็น JSON
+        if is_ajax:
+            return JsonResponse({"error": error}, status=400)
+            
         return render(request, "list.html", {"list": our_list, "error": error})
         
     return redirect(f"/lists/{our_list.id}/")

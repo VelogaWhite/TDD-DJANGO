@@ -3,10 +3,12 @@ import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-yn6!va0-@jjwu)5($7u@w5po_#1_dm_yvoa2g(142(vau5+7jx'
-
 # กำหนดค่าเริ่มต้น
-DEBUG = True
+DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() == "true"
+if os.environ.get("DJANGO_DEBUG_FALSE") == "1":
+    DEBUG = False
+
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "local-dev-key")
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'yp-sawatdee.servequake.com', 'sdp2-2025-group1-django-tdd-app.hf.space']
 db_path = BASE_DIR / "db.sqlite3"
 
@@ -87,13 +89,15 @@ if os.environ.get('DB_HOST'):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ.get('DB_NAME', 'superlists'),
-            'USER': os.environ.get('DB_USER', 'superlists'),
-            'PASSWORD': os.environ.get('DB_PASSWORD', 'superlists'),
-            'HOST': os.environ.get('DB_HOST'),  # ชื่อ Container ของ DB
+            'NAME': os.environ.get('DB_NAME'),
+            'USER': os.environ.get('DB_USER'),
+            'PASSWORD': os.environ.get('DB_PASSWORD'),
+            'HOST': os.environ.get('DB_HOST'),
             'PORT': os.environ.get('DB_PORT', '5432'),
         }
     }
+    if not DEBUG:
+        X_FRAME_OPTIONS = 'DENY' # ป้องกัน Clickjacking
 else:
     # ถ้าไม่มี (เช่นรันในเครื่องตัวเอง) ให้ใช้ SQLite เหมือนเดิม
     DATABASES = {
@@ -108,8 +112,6 @@ STATIC_ROOT = BASE_DIR / "static"
 
 # เพิ่มบรรทัดนี้เพื่อให้ Whitenoise ทำงานถูกต้องใน Production/Test
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-
-X_FRAME_OPTIONS = 'ALLOWALL'
 
 LOGGING = {
     "version": 1,
