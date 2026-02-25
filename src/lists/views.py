@@ -29,7 +29,7 @@ def view_list(request, list_id):
                     'text': item.text,
                     'priority': item.priority
                 })
-            return redirect(f"/lists/{our_list.id}/")
+            return redirect(our_list)
             
         except ValidationError:
             # 3. Catch the error and send it back as JSON with a 400 status
@@ -38,6 +38,7 @@ def view_list(request, list_id):
                 return JsonResponse({'error': error}, status=400)
 
     return render(request, "list.html", {"list": our_list, "error": error})
+
 def new_list(request):
     nulist = List.objects.create()
     item_text = request.POST.get("item_text", "")
@@ -54,8 +55,8 @@ def new_list(request):
         # 3. ถ้าเกิด Error แปลว่าข้อมูลไม่ผ่านเกณฑ์
         nulist.delete() # ลบ List ขยะทิ้ง
         return render(request, "home.html", {"error": "You can't have an empty list item"})
-        
-    return redirect(f"/lists/{nulist.id}/")
+
+    return redirect(nulist)
 
 def edit_item(request, item_id):
     item = get_object_or_404(Item, id=item_id)

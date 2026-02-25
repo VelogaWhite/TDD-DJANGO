@@ -32,18 +32,18 @@ class NewVisitorTest(FunctionalTest):
         self.wait_for_row_in_list_table(1, "Buy Gearboxes", "High")
 
         # He enters another item "Use Gearboxes to make a Machine"
-        #inputbox = self.browser.find_element(By.ID, "id_new_item")
-        #inputbox.send_keys("Use Gearboxes to make a Machine")
+        inputbox = self.browser.find_element(By.ID, "id_new_item")
+        inputbox.send_keys("Use Gearboxes to make a Machine")
 
         # He enters "Medium"
-        #inputbox = self.browser.find_element(By.ID, "id_new_priority")
-        #inputbox.send_keys("Medium")
+        inputbox = self.browser.find_element(By.ID, "id_new_priority")
+        inputbox.send_keys("Medium")
 
-        #inputbox.send_keys(Keys.ENTER)
+        inputbox.send_keys(Keys.ENTER)
 
         # Check Row 1 (Still there) and Row 2 (New item)
         self.wait_for_row_in_list_table(1, "Buy Gearboxes", "High")
-        #self.wait_for_row_in_list_table(2, "Use Gearboxes to make a Machine", "Medium")
+        self.wait_for_row_in_list_table(2, "Use Gearboxes to make a Machine", "Medium")
 
     def test_multiple_users_can_start_lists_at_different_urls(self):
         # Jack starts a new to-do list
