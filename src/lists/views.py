@@ -12,12 +12,13 @@ def view_list(request, list_id):
     
     if request.method == "POST":
         item = Item(
-            text=request.POST.get("item_text", ""), 
+            text=request.POST.get("item_text", "",), 
             priority=request.POST.get("priority_text", ""), 
             list=our_list
         )
         
         try:
+    
             item.full_clean() # 1. Force model validation
             item.save()
             

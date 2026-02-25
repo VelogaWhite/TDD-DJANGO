@@ -65,10 +65,13 @@ class ListViewTest(TestCase):
         response = self.client.get(f"/lists/{mylist.id}/")
         parsed = lxml.html.fromstring(response.content)
         [form] = parsed.cssselect("form[method=POST]")
-        self.assertEqual(form.get("action"), f"/lists/{mylist.id}/add_item")
+        
+        # Change this line to remove /add_item
+        self.assertEqual(form.get("action"), f"/lists/{mylist.id}/") 
+        
         inputs = form.cssselect("input")  
         self.assertIn("item_text", [input.get("name") for input in inputs])
-        self.assertIn("priority_text", [input.get("name") for input in inputs])  
+        self.assertIn("priority_text", [input.get("name") for input in inputs])
 
     def test_displays_only_items_for_that_list(self):
         correct_list = List.objects.create()  
@@ -92,12 +95,17 @@ class ListViewTest(TestCase):
 
         self.client.post(
             f"/lists/{correct_list.id}/",  
-            data={"item_text": "A new item for an existing list"},
+            # Add 'priority_text' so full_clean() doesn't reject it!
+            data={
+                "item_text": "A new item for an existing list",
+                "priority_text": "High"
+            },
         )
 
         self.assertEqual(Item.objects.count(), 1)
         new_item = Item.objects.get()
         self.assertEqual(new_item.text, "A new item for an existing list")
+        self.assertEqual(new_item.priority, "High") # Optional: assert priority saved
         self.assertEqual(new_item.list, correct_list)
 
     def test_POST_redirects_to_list_view(self):
@@ -106,7 +114,45 @@ class ListViewTest(TestCase):
 
         response = self.client.post(
             f"/lists/{correct_list.id}/",  
-            data={"item_text": "A new item for an existing list"},
+            data={
+                "item_text": "A new item for an existing list",
+                "priority_text": "High"
+            },
         )
 
         self.assertRedirects(response, f"/lists/{correct_list.id}/")
+
+    def view_list(request, list_id):
+        our_list = List.objects.get(id=list_id)
+        error = None
+        
+        if request.method == "POST":
+            # Safe initialization using .get() to prevent MultiValueDictKeyError
+            item = Item(
+                text=request.POST.get("item_text", ""), 
+                priority=request.POST.get("priority_text", ""), 
+                list=our_list
+            )
+            
+            try:
+                # Remove the duplicate item creation from here!
+                item.full_clean() # 1. Force model validation
+                item.save()
+                
+                # 2. Return JSON if it's an AJAX request
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'id': item.id,
+                        'text': item.text,
+                        'priority': item.priority
+                    })
+                return redirect(f"/lists/{our_list.id}/")
+                
+            except ValidationError:
+                # 3. Catch the error and send it back as JSON with a 400 status
+                error = "You can't have an empty list item"
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({'error': error}, status=400)
+
+        return render(request, "list.html", {"list": our_list, "error": error})
+        
